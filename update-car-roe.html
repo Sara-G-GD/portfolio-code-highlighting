@@ -1,0 +1,111 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(220, 198, 224); font-weight:400;">private</span> <span style="color:rgb(245, 171, 53); font-weight:400;">void</span> <span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(0, 224, 224); font-weight:400;">UpdatePhysics</span>(<span style="color:rgb(245, 171, 53); font-weight:400;"></span>)</span>
+{
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// move actual force angle towards its target by a speed decided by the direction of the change</span>
+    m_ForceAngle = Mathf.MoveTowards(
+        m_ForceAngle,
+        m_TargetForceAngle,
+        (m_TargetForceAngle == <span style="color:rgb(245, 171, 53); font-weight:400;">0</span> ? driftExitSpeed : driftEnterSpeed) * Time.deltaTime
+    );
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// gravity</span>
+    m_Velocity.y = Mathf.MoveTowards(
+        m_Velocity.y,
+        -targetDownVelocity,
+        gravity * Time.deltaTime
+    );
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// move by velocity</span>
+    m_Controller.Move(m_Velocity * Time.deltaTime);
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// update velocity depending on whether or not the car is on the ground</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_Controller.isGrounded)
+    {
+        m_Velocity = Quaternion.AngleAxis(m_ForceAngle, Vector3.up) * transform.forward * m_DriveSpeed;
+        m_Velocity -= m_GroundNormal * <span style="color:rgb(245, 171, 53); font-weight:400;">5</span>;
+    }
+    <span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+    {
+        m_Velocity = m_Controller.velocity;
+    }
+}
+
+<span style="color:rgb(220, 198, 224); font-weight:400;">private</span> <span style="color:rgb(245, 171, 53); font-weight:400;">void</span> <span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(0, 224, 224); font-weight:400;">UpdateStates</span>(<span style="color:rgb(245, 171, 53); font-weight:400;"></span>)</span>
+{
+    <span style="color:rgb(220, 198, 224); font-weight:400;">switch</span> (m_State)
+    {
+        <span style="color:rgb(220, 198, 224); font-weight:400;">case</span> KartState.Driving:
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// turn by input</span>
+            Turn(turnSpeed * Input.GetAxis(<span style="color:rgb(171, 227, 56); font-weight:400;">&quot;Horizontal&quot;</span>));
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// center force angle</span>
+            m_TargetForceAngle = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>;
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// update drive speed</span>
+            m_DriveSpeed = Mathf.MoveTowards(m_DriveSpeed, driveSpeed, acceleration * Time.deltaTime);
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// transition on drift input</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (driftInput)
+            {
+                ChangeState(KartState.Drifting);
+            }
+            <span style="color:rgb(220, 198, 224); font-weight:400;">break</span>;
+        <span style="color:rgb(220, 198, 224); font-weight:400;">case</span> KartState.Drifting:
+                <span style="color:rgb(212, 208, 171); font-weight:400;">// turn by input</span>
+            Turn(driftSteeringAngle * m_DriftDirection);
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// set target force angle to the direction of the drift</span>
+            m_TargetForceAngle = driftForceAngle * m_DriftDirection;
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// update drive speed</span>
+            m_DriveSpeed = Mathf.MoveTowards(m_DriveSpeed, minimumSpeed * <span style="color:rgb(245, 171, 53); font-weight:400;">0.</span>1f, driftBrakeSpeed * Time.deltaTime);
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// transition on input released</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (!driftInput)
+            {
+                <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_BoostCount != <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+                    ChangeState(KartState.Boosting);
+                <span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+                    ChangeState(KartState.Driving);
+            }
+            <span style="color:rgb(220, 198, 224); font-weight:400;">break</span>;
+        <span style="color:rgb(220, 198, 224); font-weight:400;">case</span> KartState.Boosting:
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// slow down</span>
+            m_DriveSpeed = Mathf.MoveTowards(m_DriveSpeed, driveSpeed, boostFalloff * Time.deltaTime);
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// center force</span>
+            m_TargetForceAngle = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>;
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// turn by limited amount</span>
+            Turn(boostTurnSpeed * Input.GetAxis(<span style="color:rgb(171, 227, 56); font-weight:400;">&quot;Horizontal&quot;</span>));
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// reset boost amount</span>
+            m_BoostCount = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>;
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// transition when regular speed is reached</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(m_DriveSpeed == driveSpeed)
+            {
+                ChangeState(KartState.Driving);
+                stopBoostEvent.Invoke();
+            }
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// transition when a drift starts</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(driftInput)
+            {
+                ChangeState(KartState.Drifting);
+                m_DriveSpeed = driveSpeed;
+                stopBoostEvent.Invoke();
+            }
+            <span style="color:rgb(220, 198, 224); font-weight:400;">break</span>;
+        <span style="color:rgb(220, 198, 224); font-weight:400;">default</span>: <span style="color:rgb(220, 198, 224); font-weight:400;">break</span>;
+    }
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// notify UnityEvents if the car stopped slipping</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(m_WasSlipping != m_Slipping)
+    {
+        <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_Slipping &amp;&amp; m_Controller.isGrounded)
+        {
+            startDriftingEvent.Invoke();
+        }
+        <span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+        {
+            stopDriftingEvent.Invoke();
+        }
+    }
+
+    m_WasSlipping = m_Slipping;
+}</code></pre>
