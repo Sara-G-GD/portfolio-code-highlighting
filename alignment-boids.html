@@ -1,0 +1,33 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(220, 198, 224); font-weight:400;">namespace</span> <span style="color:rgb(0, 224, 224); font-weight:400;">boids</span>
+{
+	<span style="color:rgb(0, 224, 224); font-weight:400;">sf</span>::<span style="color:rgb(0, 224, 224); font-weight:400;">Vector2f</span> <span style="color:rgb(0, 224, 224); font-weight:400;">alignment</span>(<span style="color:rgb(0, 224, 224); font-weight:400;">const</span> <span style="color:rgb(0, 224, 224); font-weight:400;">context_t</span>&amp; <span style="color:rgb(0, 224, 224); font-weight:400;">context</span>)
+	{
+		<span style="color:rgb(0, 224, 224); font-weight:400;">sf</span>::<span style="color:rgb(0, 224, 224); font-weight:400;">Vector2f</span> <span style="color:rgb(0, 224, 224); font-weight:400;">velocity_target</span>(0,0);
+
+		size_t num{<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>};
+		<span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(boid* b: context.all_boids)
+		{
+			<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(b != context.<span style="color:rgb(245, 171, 53); font-weight:400;">self</span>)
+			{
+				<span style="color:rgb(220, 198, 224); font-weight:400;">float</span> dist = Vector2::distance(b-&gt;position(), context.position);
+				<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(dist &lt; context.alignment_range)
+				{
+					num++;
+					velocity_target += b-&gt;velocity();
+				}
+			}
+		}
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(num == <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>) <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> Vector2f(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>);
+
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// average position of surrounding boids</span>
+		velocity_target = velocity_target / <span style="color:rgb(220, 198, 224); font-weight:400;">float</span>(num);
+
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// direction towards average position of surrounding boids</span>
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// normalized and scale</span>
+		velocity_target = Vector2::normalized(velocity_target) * context.max_desired_velocity;
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">return</span> Vector2::normalized(velocity_target - context.velocity) * context.alignment_force * context.delta_time;
+	}
+}</code></pre>
