@@ -1,0 +1,84 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(220, 198, 224); font-weight:400;">namespace</span> boids {
+vector&lt;boid*&gt; boid::m_boids = vector&lt;boid*&gt;();
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">deallocate_all</span><span style="color:rgb(245, 171, 53); font-weight:400;">()</span>
+</span>{
+	boid* b{<span style="color:rgb(245, 171, 53); font-weight:400;">nullptr</span>};
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">while</span>(boid::m_boids.<span style="color:rgb(245, 171, 53); font-weight:400;">size</span>() &gt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+	{
+		b = boid::m_boids.<span style="color:rgb(245, 171, 53); font-weight:400;">at</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>);
+		boid::m_boids.<span style="color:rgb(245, 171, 53); font-weight:400;">erase</span>( boid::m_boids.<span style="color:rgb(245, 171, 53); font-weight:400;">begin</span>() );
+		<span style="color:rgb(220, 198, 224); font-weight:400;">delete</span> b;
+	}
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">update_all</span><span style="color:rgb(245, 171, 53); font-weight:400;">(<span style="color:rgb(220, 198, 224); font-weight:400;">float</span> dt)</span>
+</span>{
+	<span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(boid* boid: boid::m_boids)
+	{
+		<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">context_t</span> <span style="color:rgb(0, 224, 224); font-weight:400;">context</span><span style="color:rgb(245, 171, 53); font-weight:400;">(boid-&gt;position(), boid-&gt;velocity(), dt, boid::m_boids, boid)</span></span>;
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(behaviour beh: boid-&gt;<span style="color:rgb(245, 171, 53); font-weight:400;">behaviours</span>())
+			boid-&gt;<span style="color:rgb(245, 171, 53); font-weight:400;">add_force</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">beh</span>(context) / boid-&gt;<span style="color:rgb(245, 171, 53); font-weight:400;">mass</span>()); 
+
+		boid-&gt;<span style="color:rgb(245, 171, 53); font-weight:400;">update_position</span>();
+	}
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">draw_all</span><span style="color:rgb(245, 171, 53); font-weight:400;">(sf::RenderWindow&amp; target)</span>
+</span>{
+	<span style="color:rgb(220, 198, 224); font-weight:400;">float</span> radius = <span style="color:rgb(245, 171, 53); font-weight:400;">5</span>;
+	<span style="color:rgb(248, 248, 242); font-weight:400;">sf::CircleShape <span style="color:rgb(0, 224, 224); font-weight:400;">circle</span><span style="color:rgb(245, 171, 53); font-weight:400;">(radius, <span style="color:rgb(245, 171, 53); font-weight:400;">6</span>)</span></span>;
+	circle.<span style="color:rgb(245, 171, 53); font-weight:400;">setOrigin</span>(radius, radius);
+	circle.<span style="color:rgb(245, 171, 53); font-weight:400;">setFillColor</span>(sf::Color::White);
+	circle.<span style="color:rgb(245, 171, 53); font-weight:400;">setOutlineColor</span>(sf::Color::White);
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;">auto</span> b: boid::m_boids)
+	{
+		circle.<span style="color:rgb(245, 171, 53); font-weight:400;">setPosition</span>(b-&gt;<span style="color:rgb(245, 171, 53); font-weight:400;">position</span>());
+		target.<span style="color:rgb(245, 171, 53); font-weight:400;">draw</span>(circle);
+	}
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">boid::update_position</span><span style="color:rgb(245, 171, 53); font-weight:400;">()</span>
+</span>{
+	m_position += m_velocity;
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_position.x &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+	{
+		m_position.x += <span style="color:rgb(220, 198, 224); font-weight:400;">static_cast</span>&lt;<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>&gt;(window.<span style="color:rgb(245, 171, 53); font-weight:400;">getSize</span>().x);
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;">else</span> <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_position.x &gt; window.<span style="color:rgb(245, 171, 53); font-weight:400;">getSize</span>().x)
+	{
+		m_position.x -= <span style="color:rgb(220, 198, 224); font-weight:400;">static_cast</span>&lt;<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>&gt;(window.<span style="color:rgb(245, 171, 53); font-weight:400;">getSize</span>().x);
+	}
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_position.y &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+	{
+		m_position.y += <span style="color:rgb(220, 198, 224); font-weight:400;">static_cast</span>&lt;<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>&gt;(window.<span style="color:rgb(245, 171, 53); font-weight:400;">getSize</span>().y);
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;">else</span> <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (m_position.y &gt; window.<span style="color:rgb(245, 171, 53); font-weight:400;">getSize</span>().y)
+	{
+		m_position.y -= <span style="color:rgb(220, 198, 224); font-weight:400;">static_cast</span>&lt;<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>&gt;(window.<span style="color:rgb(245, 171, 53); font-weight:400;">getSize</span>().y);
+	}
+}
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">// default constructor</span>
+boid::<span style="color:rgb(245, 171, 53); font-weight:400;">boid</span>()
+: <span style="color:rgb(245, 171, 53); font-weight:400;">boid</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">Vector2f</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>), <span style="color:rgb(245, 171, 53); font-weight:400;">Vector2f</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>))
+{}
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">// position-velocity constructor</span>
+boid::<span style="color:rgb(245, 171, 53); font-weight:400;">boid</span>(Vector2f position,
+		   Vector2f velocity)
+: m_position{position}
+, m_velocity{velocity}
+{
+	m_boids.<span style="color:rgb(245, 171, 53); font-weight:400;">push_back</span>(<span style="color:rgb(220, 198, 224); font-weight:400;">this</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">add_behaviour</span>(&amp;boids::separation);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">add_behaviour</span>(&amp;boids::cohesion);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">add_behaviour</span>(&amp;boids::alignment);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">add_behaviour</span>(&amp;boids::to_mouse);
+}</code></pre>
