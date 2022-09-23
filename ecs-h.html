@@ -1,0 +1,143 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;background-color:rgb(43, 43, 43);background:rgb(43, 43, 43);display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;">//</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;">//  ecs.h</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;">//  gl_project</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;">//</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;">//  Created by Scott on 08/09/2022.</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;">//</span>
+
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">ifndef</span> components_h</span>
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">define</span> components_h</span>
+
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">include</span> &amp;lt;stddef.h&amp;gt;</span>
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">include</span> &amp;lt;memory.h&amp;gt;</span>
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">include</span> &amp;lt;stdlib.h&amp;gt;</span>
+
+
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">if</span> __cplusplus</span>
+<span style="color:rgb(220, 198, 224); font-weight:400;">extern</span> <span style="color:rgb(171, 227, 56); font-weight:400;">&quot;C&quot;</span> {
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">endif</span></span>
+
+<span style="color:rgb(220, 198, 224); font-weight:400;">typedef</span> <span style="color:rgb(220, 198, 224); font-weight:400;">unsigned</span> <span style="color:rgb(220, 198, 224); font-weight:400;">long</span> <span style="color:rgb(220, 198, 224); font-weight:400;">long</span> entityId;
+<span style="color:rgb(220, 198, 224); font-weight:400;">typedef</span> <span style="color:rgb(220, 198, 224); font-weight:400;">unsigned</span> <span style="color:rgb(220, 198, 224); font-weight:400;">long</span> <span style="color:rgb(220, 198, 224); font-weight:400;">long</span> componentId;
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">typedef</span> <span style="color:rgb(0, 224, 224); font-weight:400;">void</span> <span style="color:rgb(245, 171, 53); font-weight:400;">(*ECSsystemFunc)</span><span style="color:rgb(245, 171, 53); font-weight:400;">(entityId, componentId, <span style="color:rgb(220, 198, 224); font-weight:400;">float</span>)</span></span>;
+
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">define</span> noentity		((entityId)0x0a)</span>
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">define</span> nocomponent		((componentId)0x0)</span>
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">define</span> anycomponent	((componentId)~0x0)</span>
+
+<span style="color:rgb(220, 198, 224); font-weight:400;">typedef</span> <span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">enum</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ECSqueryComparison</span> {</span>
+	ECS_QUERY_ANY,
+	ECS_QUERY_ALL
+} ECSqueryComparison;
+
+<span style="color:rgb(220, 198, 224); font-weight:400;">typedef</span> <span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">struct</span> <span style="color:rgb(0, 224, 224); font-weight:400;">componentQuery</span>{</span>
+	ECSqueryComparison comparison;
+	componentId mask;
+} componentQuery;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">//! Structure to represent a task the ECS needs to perform after systems finish running.</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;">//! \note Not every member is used by every value of type and thus can be left uninitialized.</span>
+<span style="color:rgb(220, 198, 224); font-weight:400;">typedef</span> <span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">struct</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ECStask</span> {</span>
+	<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">enum</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ECS_TASKTYPE</span> {</span>
+		ECS_ENTITY_DESTROY,		<span style="color:rgb(212, 208, 171); font-weight:400;">//! Requires .entity to be set</span>
+		ECS_COMPONENTS_DETACH,	<span style="color:rgb(212, 208, 171); font-weight:400;">//! requires .entity and .components.mask to be set</span>
+		ECS_SYSTEM_CREATE,		<span style="color:rgb(212, 208, 171); font-weight:400;">//! Requires .system and .components to be set</span>
+		ECS_SYSTEM_DESTROY,		<span style="color:rgb(212, 208, 171); font-weight:400;">//! Requires .system to be set</span>
+	} type;
+
+	entityId		entity;		<span style="color:rgb(212, 208, 171); font-weight:400;">//! relevant entity id</span>
+	ECSsystemFunc	system;		<span style="color:rgb(212, 208, 171); font-weight:400;">//! relevant system function pointer</span>
+	componentQuery components;	<span style="color:rgb(212, 208, 171); font-weight:400;">//! relevant components</span>
+} ECStask;
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsInit</span><span style="color:rgb(245, 171, 53); font-weight:400;">()</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Allocates a component list for a component type of stride bytes.
+ * \param stride The number of bytes to allocate for each component.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;">componentId <span style="color:rgb(0, 224, 224); font-weight:400;">ecsMakeComponentType</span><span style="color:rgb(245, 171, 53); font-weight:400;">(<span style="color:rgb(220, 198, 224); font-weight:400;">size_t</span> stride)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Get a pointer to a component attached to entity.
+ * \param entity The entity to find a component of.
+ * \param component The component type to find.
+ * \returns A pointer to a component if found.
+ * \returns NULL if entity does not contain the given component.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span>* <span style="color:rgb(0, 224, 224); font-weight:400;">ecsGetComponentPtr</span><span style="color:rgb(245, 171, 53); font-weight:400;">(entityId entity, componentId component)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Assigns a new entity id.
+ * \param components  A component query referencing the components to add to the new object.
+ * \returns The id used to reference the newly created entity.
+ * \returns NULL if allocation failed
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;">entityId <span style="color:rgb(0, 224, 224); font-weight:400;">ecsCreateEntity</span><span style="color:rgb(245, 171, 53); font-weight:400;">(componentId components)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Destroys an entity and all associated components
+ * \param entity The id of the entity to destroy.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsDestroyEntity</span><span style="color:rgb(245, 171, 53); font-weight:400;">(entityId entity)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Attaches one or more components.
+ * \param entity The entity to attach the new components to.
+ * \param components Bitmask of the componentId&#x27;s to attach.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsAttachComponents</span><span style="color:rgb(245, 171, 53); font-weight:400;">(entityId entity, componentId components)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Detaches one or more components.
+ * \param entity The entity to detach components from.
+ * \param components Bitmask of the components to detach.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsDetachComponents</span><span style="color:rgb(245, 171, 53); font-weight:400;">(entityId entity, componentId components)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Enables a function to act as a system for entities matching the given query.
+ * \param func The function to call when query is met.
+ * \param componentQuery The required components to run this system.
+ * \param comparison The type of requirement components represent. one of { ECS_QUERY_ANY ; ECS_QUERY_ALL }.
+ * \note
+ * When comparison=ECS_QUERY_ALL the system will run only when all of the masked components are present on an entity.
+ * \note
+ * When comparison=ECS_QUERY_ANY the system will run for all entities where any of the masked components are present.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsEnableSystem</span><span style="color:rgb(245, 171, 53); font-weight:400;">(ECSsystemFunc func, componentId components, ECSqueryComparison comparison)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Disables a function acting as a system.
+ * \param func Pointer to the function to disable.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsDisableSystem</span><span style="color:rgb(245, 171, 53); font-weight:400;">(ECSsystemFunc func)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Run currently enabled systems.
+ * \note Implicitly calls ecsRunTasks after completion.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsRunSystems</span><span style="color:rgb(245, 171, 53); font-weight:400;">(<span style="color:rgb(220, 198, 224); font-weight:400;">float</span> deltaTime)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Run queued tasks.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsRunTasks</span><span style="color:rgb(245, 171, 53); font-weight:400;">()</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Push a task onto the task queue.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsPushTask</span><span style="color:rgb(245, 171, 53); font-weight:400;">(ECStask task)</span></span>;
+
+<span style="color:rgb(212, 208, 171); font-weight:400;">/**
+ * \brief Terminate the ECS and clean up allocated resources.
+ */</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ecsTerminate</span><span style="color:rgb(245, 171, 53); font-weight:400;">()</span></span>;
+
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">if</span> __cplusplus</span>
+}
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">endif</span></span>
+
+<span style="color:rgb(245, 171, 53); font-weight:400;">#<span style="color:rgb(245, 171, 53); font-weight:400;">endif</span> <span style="color:rgb(212, 208, 171); font-weight:400;">/* components_h */</span></span></code></pre>
