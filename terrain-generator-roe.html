@@ -1,0 +1,45 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;background-color:rgb(43, 43, 43);background:rgb(43, 43, 43);display:block;padding: .5em;"><span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">public</span> <span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">Generate</span><span style="color:rgb(245, 171, 53); font-weight:400;">(<span style="color:rgb(220, 198, 224); font-weight:400;">int</span> w, <span style="color:rgb(220, 198, 224); font-weight:400;">int</span> h, <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> xo, <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> yo, <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> frequency)</span>
+</span>{
+    <span style="color:rgb(220, 198, 224); font-weight:400;">float</span>[,] map = <span style="color:rgb(220, 198, 224); font-weight:400;">new</span> <span style="color:rgb(220, 198, 224); font-weight:400;">float</span>[w, h];
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// for each pixel on the heightmap</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;">int</span> x = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>; x &lt; w; x++)
+    {
+        <span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;">int</span> y = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>; y &lt; h; y++)
+        {
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// generate raw perlin input</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> xs = x * frequency * <span style="color:rgb(245, 171, 53); font-weight:400;">0.01f</span>;
+            <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> ys = y * frequency * <span style="color:rgb(245, 171, 53); font-weight:400;">0.01f</span>;
+            <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> n = Mathf.<span style="color:rgb(245, 171, 53); font-weight:400;">PerlinNoise</span>(xs + xo, ys + yo);
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// clamp because the unity docs said so</span>
+            n = Mathf.<span style="color:rgb(245, 171, 53); font-weight:400;">Clamp</span>(n, <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>);
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// apply modifiers</span>
+            map[x,y] = (
+                    <span style="color:rgb(245, 171, 53); font-weight:400;">0.01f</span>
+                    * heightMultiplier
+                    * modifierCurve.<span style="color:rgb(245, 171, 53); font-weight:400;">Evaluate</span>(n)
+                    * edgeCurve.<span style="color:rgb(245, 171, 53); font-weight:400;">Evaluate</span>((<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>)x / (<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>)w)
+                    * edgeCurve.<span style="color:rgb(245, 171, 53); font-weight:400;">Evaluate</span>((<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>)y / (<span style="color:rgb(220, 198, 224); font-weight:400;">float</span>)h)
+                    );
+        }
+    }
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// average edges to avoid mesh seams</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> a, b;
+    <span style="color:rgb(220, 198, 224); font-weight:400;">for</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">int</span> x = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>; x &lt; w; x++)
+    {
+        a = map[x, <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>]; b = map[x, h - <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>];
+        map[x, <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>] = map[x, h - <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>] = (a + b) / <span style="color:rgb(245, 171, 53); font-weight:400;">2</span>;
+    }
+    <span style="color:rgb(220, 198, 224); font-weight:400;">for</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">int</span> y = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>; y &lt; h; y++)
+    {
+        a = map[<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>, y]; b = map[w - <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>, y];
+        map[<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>, y] = map[w - <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>, y] = (a + b) / <span style="color:rgb(245, 171, 53); font-weight:400;">2</span>;
+    }
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// apply heightmap to terrain</span>
+    m_Terrain.terrainData.<span style="color:rgb(245, 171, 53); font-weight:400;">SetHeights</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>, map);
+}</code></pre>
