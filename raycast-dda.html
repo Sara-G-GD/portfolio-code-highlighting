@@ -1,0 +1,90 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;;display:block;padding: .5em;"><span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(245, 171, 53); font-weight:400;">int</span> <span style="color:rgb(0, 224, 224); font-weight:400;">RC_MapRaycast</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">RC_Map * <span style="color:rgb(220, 198, 224); font-weight:400;">this</span>, RC_Ray ray,
+				  RC_RaycastHit * <span style="color:rgb(220, 198, 224); font-weight:400;">out</span></span>)</span>
+{
+	<span style="color:rgb(212, 208, 171); font-weight:400;">// get the current tile</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;">int</span> map_x = (<span style="color:rgb(245, 171, 53); font-weight:400;">int</span>)(ray.pos_x), map_y = (<span style="color:rgb(245, 171, 53); font-weight:400;">int</span>)(ray.pos_y);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">float</span> side_dist_x, side_dist_y;
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(map_x &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span> || map_x &gt;= <span style="color:rgb(220, 198, 224); font-weight:400;">this</span>-&gt;w) <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;">-1</span>;
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(map_y &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span> || map_y &gt;= <span style="color:rgb(220, 198, 224); font-weight:400;">this</span>-&gt;h) <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;">-2</span>;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;">// get the distance from the current position to the next x or y wall</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;">float</span> delta_dist_x = (ray.dir_x == <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>) ? <span style="color:rgb(245, 171, 53); font-weight:400;">1e30</span> : fabs(<span style="color:rgb(245, 171, 53); font-weight:400;">1</span> / ray.dir_x);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">float</span> delta_dist_y = (ray.dir_y == <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>) ? <span style="color:rgb(245, 171, 53); font-weight:400;">1e30</span> : fabs(<span style="color:rgb(245, 171, 53); font-weight:400;">1</span> / ray.dir_y);
+	<span style="color:rgb(245, 171, 53); font-weight:400;">float</span> perpWallDist;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;">// direction to step in on x and y axes</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;">int</span> step_x;
+	<span style="color:rgb(245, 171, 53); font-weight:400;">int</span> step_y;
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;">int</span> hit = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>; <span style="color:rgb(212, 208, 171); font-weight:400;">// whether or not a wall was hit</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;">int</span> side; <span style="color:rgb(212, 208, 171); font-weight:400;">// is hit a north-south or east-west wall?</span>
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;">// get distance to next tile in direction defined by ray.dir_x/y</span>
+	<span style="color:rgb(212, 208, 171); font-weight:400;">// with positive value calculate as position - floor(position) * distance to wall</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (ray.dir_x &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+	{
+		step_x = <span style="color:rgb(245, 171, 53); font-weight:400;">-1</span>;
+		side_dist_x = (ray.pos_x - map_x) * delta_dist_x;
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+	{
+		step_x = <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>;
+		side_dist_x = (map_x + <span style="color:rgb(245, 171, 53); font-weight:400;">1.0f</span> - ray.pos_x) * delta_dist_x;
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (ray.dir_y &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+	{
+		step_y = <span style="color:rgb(245, 171, 53); font-weight:400;">-1</span>;
+		side_dist_y = (ray.pos_y - map_y) * delta_dist_y;
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+	{
+		step_y = <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>;
+		side_dist_y = (map_y + <span style="color:rgb(245, 171, 53); font-weight:400;">1.0f</span> - ray.pos_y) * delta_dist_y;
+	}
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;">// ray steps</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;">while</span> (hit == <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// make smallest step first</span>
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(side_dist_x &lt; side_dist_y)
+		{
+			side_dist_x += delta_dist_x; 	<span style="color:rgb(212, 208, 171); font-weight:400;">// increment side dist by delta dist</span>
+			map_x += step_x; 				<span style="color:rgb(212, 208, 171); font-weight:400;">// make step</span>
+			side = <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>; 						<span style="color:rgb(212, 208, 171); font-weight:400;">// side is east-west</span>
+		}
+		<span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+		{
+			side_dist_y += delta_dist_y; 	<span style="color:rgb(212, 208, 171); font-weight:400;">// increment side dist by delta dist</span>
+			map_y += step_y; 				<span style="color:rgb(212, 208, 171); font-weight:400;">// make step</span>
+			side = <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>; 						<span style="color:rgb(212, 208, 171); font-weight:400;">// side is north-south</span>
+		}
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(map_x &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span> || map_x &gt;= <span style="color:rgb(220, 198, 224); font-weight:400;">this</span>-&gt;w) <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;">-1</span>;
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(map_y &lt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span> || map_y &gt;= <span style="color:rgb(220, 198, 224); font-weight:400;">this</span>-&gt;h) <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;">-2</span>;
+
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// check if a wall was hit this step</span>
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">this</span>-&gt;grid[map_x][map_y] &gt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>) hit = <span style="color:rgb(245, 171, 53); font-weight:400;">1</span>;
+	}
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(hit)
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// calculate distance</span>
+		<span style="color:rgb(212, 208, 171); font-weight:400;">// inacurate to geometry, but the techically realistic fisheye looks weird</span>
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(side == <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>) 	perpWallDist = (side_dist_x - delta_dist_x);
+		<span style="color:rgb(220, 198, 224); font-weight:400;">else</span>			perpWallDist = (side_dist_y - delta_dist_y);
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">out</span> != NULL)
+		{
+			<span style="color:rgb(212, 208, 171); font-weight:400;">// update hit out</span>
+			<span style="color:rgb(220, 198, 224); font-weight:400;">out</span>-&gt;x = map_x;						<span style="color:rgb(212, 208, 171); font-weight:400;">// position that was hit</span>
+			<span style="color:rgb(220, 198, 224); font-weight:400;">out</span>-&gt;y = map_y;
+			<span style="color:rgb(220, 198, 224); font-weight:400;">out</span>-&gt;<span style="color:rgb(220, 198, 224); font-weight:400;">value</span> = <span style="color:rgb(220, 198, 224); font-weight:400;">this</span>-&gt;grid[map_x][map_y];	<span style="color:rgb(212, 208, 171); font-weight:400;">// tile type that was hit</span>
+			<span style="color:rgb(220, 198, 224); font-weight:400;">out</span>-&gt;distance = perpWallDist;		<span style="color:rgb(212, 208, 171); font-weight:400;">// distance to tile</span>
+			<span style="color:rgb(220, 198, 224); font-weight:400;">out</span>-&gt;side = side;					<span style="color:rgb(212, 208, 171); font-weight:400;">// 1 if north-south, 0 if east-west</span>
+		}
+	}
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;">return</span> hit; <span style="color:rgb(212, 208, 171); font-weight:400;">// return if something was hit</span>
+}</code></pre>
