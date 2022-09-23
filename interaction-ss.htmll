@@ -1,0 +1,54 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">private</span> <span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">TryInteract</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">Vector3 point</span>)</span>
+{
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// allocate array to store interacted items</span>
+    Collider2D[] hits = <span style="color:rgb(220, 198, 224); font-weight:400;">new</span> Collider2D[<span style="color:rgb(245, 171, 53); font-weight:400;">10</span>];
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// search for any items in an area around the clicked point</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">var</span> hitNum = Physics2D.OverlapCircle(point, <span style="color:rgb(245, 171, 53); font-weight:400;">0.25f</span>, m_InteractMask, hits);
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// activate all found items</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">foreach</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">var</span> hit <span style="color:rgb(220, 198, 224); font-weight:400;">in</span> hits)
+    {
+        <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (hit != <span style="color:rgb(245, 171, 53); font-weight:400;">null</span>)
+        {
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// ensure collider is in range</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (!IsInRange(hit))
+                <span style="color:rgb(220, 198, 224); font-weight:400;">continue</span>;
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// ensure collider is not obstructed</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (IsObstructed(hit))
+                <span style="color:rgb(220, 198, 224); font-weight:400;">continue</span>;
+
+            <span style="color:rgb(212, 208, 171); font-weight:400;">// activate all interactible components on collider</span>
+            ActivateAll(hit.gameObject);
+        }
+    }
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">private</span> <span style="color:rgb(245, 171, 53); font-weight:400;">bool</span> <span style="color:rgb(0, 224, 224); font-weight:400;">IsInRange</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">Collider2D col</span>)</span>
+{
+    <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> col &amp;&amp; ((Vector2)transform.position - col.ClosestPoint(transform.position)).sqrMagnitude &lt;= m_SqrDistance;
+}
+
+
+<span style="color:rgb(212, 208, 171); font-weight:400;"><span style="color:rgb(212, 208, 171); font-weight:400;">///</span> Checks if the given collider is obstructed</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">private</span> <span style="color:rgb(245, 171, 53); font-weight:400;">bool</span> <span style="color:rgb(0, 224, 224); font-weight:400;">IsObstructed</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">Collider2D target</span>)</span>
+{
+    <span style="color:rgb(220, 198, 224); font-weight:400;">var</span> dir = target.bounds.center - transform.position;
+    RaycastHit2D[] obstructions = <span style="color:rgb(220, 198, 224); font-weight:400;">new</span> RaycastHit2D[<span style="color:rgb(245, 171, 53); font-weight:400;">10</span>];
+    <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (Physics2D.Raycast(transform.position, dir, m_Obstructions, obstructions, dir.magnitude) &gt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)
+        <span style="color:rgb(220, 198, 224); font-weight:400;">foreach</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">var</span> ob <span style="color:rgb(220, 198, 224); font-weight:400;">in</span> obstructions)
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (ob.collider != target)
+                <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;">true</span>;
+    <span style="color:rgb(220, 198, 224); font-weight:400;">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;">false</span>;
+}
+
+
+<span style="color:rgb(212, 208, 171); font-weight:400;"><span style="color:rgb(212, 208, 171); font-weight:400;">///</span> Interacts with all IInteractible components on obj</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">private</span> <span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">ActivateAll</span>(<span style="color:rgb(245, 171, 53); font-weight:400;">GameObject obj</span>)</span>
+{
+    <span style="color:rgb(220, 198, 224); font-weight:400;">var</span> items = obj.GetComponents&lt;IInteractible&gt;(); <span style="color:rgb(212, 208, 171); font-weight:400;">// find all interactible items on obj</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (items.Length &gt; <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>) <span style="color:rgb(212, 208, 171); font-weight:400;">// if obj has interactible items</span>
+        <span style="color:rgb(220, 198, 224); font-weight:400;">foreach</span> (<span style="color:rgb(220, 198, 224); font-weight:400;">var</span> item <span style="color:rgb(220, 198, 224); font-weight:400;">in</span> items) <span style="color:rgb(212, 208, 171); font-weight:400;">// loop through all interactible items attached to obj</span>
+            <span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(!(item <span style="color:rgb(220, 198, 224); font-weight:400;">is</span> ILockable) || (item <span style="color:rgb(220, 198, 224); font-weight:400;">as</span> ILockable).CanUnlock(gameObject)) <span style="color:rgb(212, 208, 171); font-weight:400;">// check lock</span>
+                item.Activate(gameObject);
+}</code></pre>
