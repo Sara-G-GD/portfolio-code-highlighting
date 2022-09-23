@@ -1,0 +1,29 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;">namespace boids
+{
+	sf::Vector2f separation(<span style="color:rgb(220, 198, 224); font-weight:400;">const</span> context_t&amp; context)
+	{
+		sf::Vector2f velocity_target(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>);
+
+		size_t num{<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>};
+		<span style="color:rgb(220, 198, 224); font-weight:400;">for</span>(boid* b: context.all_boids)
+		{
+			<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(b != context.<span style="color:rgb(220, 198, 224); font-weight:400;">self</span>)
+			{
+				float dist = Vector2::distance(b-&gt;position(), context.position);
+				<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(dist &lt; context.separation_range)
+				{
+					num++;
+					velocity_target += (context.position - b-&gt;position()) * Vector2::distance(context.position, b-&gt;position());
+				}
+			}
+		}
+
+		velocity_target = Vector2::normalized(velocity_target) * context.max_desired_velocity;
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">if</span>(velocity_target == sf::Vector2f(<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;">0</span>))
+			<span style="color:rgb(220, 198, 224); font-weight:400;">return</span> velocity_target;
+
+		<span style="color:rgb(220, 198, 224); font-weight:400;">return</span> Vector2::normalized(velocity_target - context.velocity) * context.separation_force * context.delta_time;
+	}
+}</code></pre>
