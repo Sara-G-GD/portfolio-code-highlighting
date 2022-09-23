@@ -1,0 +1,42 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(248, 248, 242); font-weight:400;"><span style="color:rgb(220, 198, 224); font-weight:400;">public</span> <span style="color:rgb(220, 198, 224); font-weight:400;">override</span> <span style="color:rgb(220, 198, 224); font-weight:400;">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;">UpdateTarget</span><span style="color:rgb(245, 171, 53); font-weight:400;">()</span>
+</span>{
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// get positions of the next 3 checkpoints</span>
+    Vector3 targetPosition = m_Checkpoints.nextCheckpoint.next.transform.position;
+    Vector3 nextPosition = m_Checkpoints.nextCheckpoint.next.next.transform.position;
+    Vector3 lastPosition = m_Checkpoints.nextCheckpoint.transform.position;
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// calculate the two directions that define the turn ahead</span>
+    Vector3 lastToNext = (lastPosition - targetPosition).normalized;
+    Vector3 targetToNext = (targetPosition - nextPosition).normalized;
+
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// calculate the angle of the next turn</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> nextTurnAngle = Vector3.<span style="color:rgb(245, 171, 53); font-weight:400;">Angle</span>(lastToNext, targetToNext);
+    
+    <span style="color:rgb(212, 208, 171); font-weight:400;">// calculate if we&#x27;ve past the checkpoint</span>
+    <span style="color:rgb(220, 198, 224); font-weight:400;">float</span> dot = Vector3.<span style="color:rgb(245, 171, 53); font-weight:400;">Dot</span>((lastPosition - transform.position).normalized, m_Checkpoints.nextCheckpoint.transform.forward);
+
+    <span style="color:rgb(220, 198, 224); font-weight:400;">if</span> (nextTurnAngle &lt; m_DriftCheckpointAngle                              <span style="color:rgb(212, 208, 171); font-weight:400;">// drift only if the angle between the next to turns is small enough</span>
+    &amp;&amp; Vector3.<span style="color:rgb(245, 171, 53); font-weight:400;">Distance</span>(transform.position, lastPosition) &lt; m_DriftDistance <span style="color:rgb(212, 208, 171); font-weight:400;">// drift only if close enough</span>
+    &amp;&amp; targetSpeed &gt; m_MinDriftSpeed                                        <span style="color:rgb(212, 208, 171); font-weight:400;">// drift only if going fast enough</span>
+    &amp;&amp; dot &gt;= <span style="color:rgb(245, 171, 53); font-weight:400;">0</span>)                                                            <span style="color:rgb(212, 208, 171); font-weight:400;">// drift only if we are behind the next checkpoint</span>
+    {
+        <span style="color:rgb(212, 208, 171); font-weight:400;">// Change driving characteristics to turn faster with less friction</span>
+        m_Drifting = <span style="color:rgb(245, 171, 53); font-weight:400;">true</span>;
+        m_MaxTurnSpeed = m_DriftTurnSpeed;
+        m_Acceleration = m_DriftFriction;
+
+        <span style="color:rgb(212, 208, 171); font-weight:400;">// Change navigation</span>
+        m_Target = m_Checkpoints.nextCheckpoint.next;
+    }
+    <span style="color:rgb(220, 198, 224); font-weight:400;">else</span>
+    {
+        <span style="color:rgb(212, 208, 171); font-weight:400;">// Change driving characteristics to default</span>
+        m_Drifting = <span style="color:rgb(245, 171, 53); font-weight:400;">false</span>;
+        m_MaxTurnSpeed = m_DefaultTurnSpeed;
+        m_Acceleration = m_DefaultFriction;
+
+        <span style="color:rgb(212, 208, 171); font-weight:400;">// Change navigation</span>
+        m_Target = m_Checkpoints.nextCheckpoint;
+    }
+}</code></pre>
