@@ -1,5 +1,5 @@
 <pre>
- <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;background-color:rgb(43, 43, 43);background:rgb(43, 43, 43);display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">//from sim_init</span>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">//from sim_init</span>
 boid_component = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsRegisterComponent</span>(boid_c);
 
 <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_update_position,   boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">50</span>);
