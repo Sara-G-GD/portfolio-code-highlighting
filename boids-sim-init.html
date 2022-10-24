@@ -1,0 +1,42 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;background-color:rgb(43, 43, 43);background:rgb(43, 43, 43);display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// called from the engine after other modules are initialized</span>
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">sim_init</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span>
+</span>{
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// register boid_c as a component type</span>
+	boid_component = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsRegisterComponent</span>(boid_c);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// enable the functions that make boids boid</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_update_position,		boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">50</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_update_near,		boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_draw_boids,			boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">200</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_wall_avoid,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">300</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_cohesion,		boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">400</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_alignment,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">410</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_separation,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">420</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_mouse,			boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">430</span>);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// enable the gui system</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_draw_gui,			nocomponent,	ECS_NOQUERY,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">500</span>);
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> w, h;
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">SDL_GetRendererOutputSize</span>(renderer, &amp;w, &amp;h);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// load boid image</span>
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">//asset_handle_t blur_asset = load_asset(&quot;blur.png&quot;);</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">asset_handle_t</span> arrow_asset = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">load_asset</span>(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;boid.png&quot;</span>);
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set boid texture</span>
+	boid_texture = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">get_asset</span>(arrow_asset);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// load and set font</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">asset_handle_t</span> font_asset = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">load_asset</span>(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;Inter-Regular.otf&quot;</span>);
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">uiSetFont</span>(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">get_asset</span>(font_asset));
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set the initially available area</span>
+	boid_available_area = (SDL_Rect){
+		.x = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, .y = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>,
+		.w = w, .h = h
+	};
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// spawn a bunch of boids</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">spawn_boids</span>();
+}</code></pre>
