@@ -1,0 +1,31 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">system_boid_update_near</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(ecsEntityId* entities, ecsComponentMask* components, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">size_t</span> count, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span> delta_time)</span>
+</span>{
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span> dist;
+	boid_c* boid, *other;
+	
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span> max_range = alignment.range;
+	max_range = separation.range &gt; max_range ? separation.range : max_range;
+	max_range = cohesion.range &gt; max_range ? cohesion.range : max_range;
+	
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">size_t</span> hits = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>;
+	
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">size_t</span> i = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>; i &lt; count; ++i)
+	{
+		boid = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsGetComponentPtr</span>(entities[i], boid_component);
+		hits = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>;
+		
+		<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">memset</span>(boid-&gt;near, noentity, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">sizeof</span></span>(boid-&gt;near));
+		<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">size_t</span> j = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>; j &lt; count &amp;&amp; hits &lt; BOID_NEAR_COUNT; ++j)
+		{
+			other = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsGetComponentPtr</span>(entities[j], boid_component);
+			dist = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">vdist</span>(&amp;boid-&gt;position, &amp;other-&gt;position);
+			
+			<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">assert</span>(!<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">isnan</span>(dist));
+			<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(dist &lt; max_range)
+			{
+				boid-&gt;near[hits++] = entities[j];
+			}
+		}
+	}
+}</code></pre>
