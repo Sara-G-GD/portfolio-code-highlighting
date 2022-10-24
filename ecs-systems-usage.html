@@ -1,0 +1,46 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;background-color:rgb(43, 43, 43);background:rgb(43, 43, 43);display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">//from sim_init</span>
+boid_component = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsRegisterComponent</span>(boid_c);
+
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_update_position,   boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">50</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_update_near,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_draw_boids,		boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">200</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_wall_avoid,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">300</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_cohesion,		boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">400</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_alignment,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">410</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boids_separation,	boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">420</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_boid_mouse,		boid_component,	ECS_QUERY_ALL,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">8</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">430</span>);
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsEnableSystem</span>(&amp;system_draw_gui,		nocomponent,	ECS_NOQUERY,	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">500</span>);
+
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// from spawn_boids</span>
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> i = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>; i &lt; boid_spawn_num; i++)
+{
+	position = (fvec){<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">rand</span>() % w, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">rand</span>() % h};
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>((entity = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsCreateEntity</span>(boid_component)) != noentity)
+	{
+		boid = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsGetComponentPtr</span>(entity, boid_component);
+		(*boid) = (boid_c){
+			.position = position,
+			.velocity = {<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>},
+			.force = {<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>,<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>}
+		};
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">else</span>
+	{
+		<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">exit</span>(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">2</span>);
+	}
+}
+
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// from engine_run</span>
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">while</span>(!engine_wants_to_quit)
+{
+	last_frame_time = frame_start_time;
+	frame_start_time = (<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span>)<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">clock</span>() / CLOCKS_PER_SEC;
+	
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">ecsRunSystems</span>(frame_start_time - last_frame_time);
+	
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">while</span>(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">SDL_PollEvent</span>(&amp;evt))
+	{
+		<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">engine_handle_event</span>(&amp;evt);
+	}
+}</code></pre>
