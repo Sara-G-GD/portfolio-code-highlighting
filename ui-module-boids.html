@@ -1,0 +1,43 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;background-color:rgb(43, 43, 43);background:rgb(43, 43, 43);display:block;padding: .5em;"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(uiBeginWindow(&amp;rect, &amp;show_sliders))
+{
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set the area boids will stay in to exclude the area of the ui</span>
+	boid_available_area.x = rect.w;
+	boid_available_area.w = ww - rect.w;
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// render velocity and acceleration sliders</span>
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;speed&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;boid_max_velocity, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">10.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">5.</span>f);
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;acceleration&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;boid_acceleration, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">10.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">5.</span>f);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// alignment parameters</span>
+	uiHeader(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;alignment&quot;</span>);
+	
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;range&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;(alignment.<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">range</span>), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.1</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">1.</span>f);
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;force&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;(alignment.force), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.0</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">2.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.01</span>f);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// cohesion parameters</span>
+	uiHeader(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;cohesion&quot;</span>);
+	
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;range&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;(cohesion.<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">range</span>), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.1</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">1.</span>f);
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;force&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;(cohesion.force), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.0</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">2.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">.01</span>f);
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// mouse interaction parameters</span>
+	uiHeader(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;mouse&quot;</span>);
+	
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;range&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;(mouse_interact.<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">range</span>), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.1</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">1.</span>f);
+	uiLabelNext(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;force&quot;</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.25</span>f);
+	uiSlider(&amp;(mouse_interact.force), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">-200.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">200.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">10.</span>f);
+	
+	
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// separation range</span>
+	uiHeader(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;separation&quot;</span>);
+
+	uiSlider(&amp;(separation.<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">range</span>), <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0.1</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">100.</span>f, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">1.</span>f);
+}</code></pre>
