@@ -1,0 +1,42 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">pragma</span> once</span>
+
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">include</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;CoreMinimal.h&quot;</span></span>
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">include</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;VTDSpellOrb.generated.h&quot;</span></span>
+
+
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UCLASS</span>( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable, BlueprintType )
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">PROJECTVTD_API</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">AVTDSpellOrb</span> :</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">public</span> AActor
+{
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">GENERATED_BODY</span>()
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">public</span>:
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(BlueprintReadOnly, VisibleAnywhere, Category=Orb)
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">USphereComponent</span>* <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">SphereComponent</span>;</span>
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(BlueprintReadWrite, EditAnywhere, Category=Orb)
+	TSubclassOf&lt;UActorComponent&gt; ParentComponentTypeToTriggerOn;
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(BlueprintReadonly, VisibleAnywhere, Category=Orb)
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> OrbIndex;
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>()
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap</span>* <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">SpellMapComponent</span>;</span>
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(BlueprintReadOnly, EditAnywhere, Category=Display)
+	UStaticMeshComponent* StaticMesh;
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">public</span>:
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Sets default values for this component&#x27;s properties</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">AVTDSpellOrb</span>();
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">protected</span>:
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Called when this components child collider overlaps another collider</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UFUNCTION</span>()
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">OnOverlap</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComponent, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> OtherBodyIndex, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> bFromSweep,
+		<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span> FHitResult&amp; SweepResult)</span></span>;
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UFUNCTION</span>(BlueprintImplementableEvent)
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">OnActivateEvent</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span></span>;
+};</code></pre>
