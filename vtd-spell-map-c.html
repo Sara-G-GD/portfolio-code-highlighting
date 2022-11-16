@@ -1,0 +1,70 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Fill out your copyright notice in the Description page of Project Settings.</span>
+
+
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">include</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;VTDSpellMap.h&quot;</span></span>
+
+UVTDSpellMap::<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap</span>()
+{
+	CurrentPattern = <span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;&quot;</span>;
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap::AppendToCurrent</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> Index)</span>
+</span>{
+	CurrentPattern.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Appendf</span>(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">TEXT</span>(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;%d&quot;</span>), Index);
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(Patterns.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Num</span>() == <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>) <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">false</span>;
+
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(Patterns.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Contains</span>(CurrentPattern))
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">/* current pattern is correct */</span>
+		OnCorrectPattern.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Broadcast</span>(CurrentPattern);
+		<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Reset</span>();
+		<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">true</span>;
+	}
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">else</span>
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">/* check if the current pattern could still result in a valid pattern */</span>
+		FString Found = <span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;&quot;</span>;
+		<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(FString Key: Patterns)
+		{
+			<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(Key.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">StartsWith</span>(CurrentPattern))
+			{
+				Found = Key;
+				<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">break</span>;
+			}
+		}
+		<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(Found == <span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;&quot;</span>)
+		{
+			OnWrongPattern.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Broadcast</span>(CurrentPattern);
+			<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Reset</span>();
+		}
+	}
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">return</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">false</span>;
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap::Reset</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span>
+</span>{
+	CurrentPattern = <span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;&quot;</span>;
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap::AddPattern</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(FString Pattern)</span>
+</span>{
+	Patterns.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">AddUnique</span>(Pattern);
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap::IsValidPattern</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(FString Pattern)</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span>
+</span>{
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">return</span> !Pattern.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">IsEmpty</span>() &amp;&amp; Patterns.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Contains</span>(Pattern);
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap::IsComplete</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span>
+</span>{
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">return</span> !CurrentPattern.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">IsEmpty</span>() &amp;&amp; Patterns.<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">Contains</span>(CurrentPattern);
+}
+
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);">FString <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap::GetCurrent</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span>
+</span>{ <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">return</span> CurrentPattern;}
+</code></pre>
