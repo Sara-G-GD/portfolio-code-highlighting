@@ -1,0 +1,53 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">pragma</span> once</span>
+
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">include</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;CoreMinimal.h&quot;</span></span>
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">include</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;GameFramework/Actor.h&quot;</span></span>
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">#<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">include</span> <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;VTDSpellCircle.generated.h&quot;</span></span>
+
+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UCLASS</span>(Blueprintable, BlueprintType)
+<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">PROJECTVTD_API</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">AVTDSpellCircle</span> :</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">public</span> AActor
+{
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">GENERATED_BODY</span>()
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">public</span>:
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(VisibleAnywhere, BlueprintReadOnly)
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">UVTDSpellMap</span>* <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">SpellMap</span>;</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(EditAnywhere, BlueprintReadOnly)
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span> CircleRadius;
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(EditAnywhere, BlueprintReadOnly)
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> OrbCount;
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(EditAnywhere, BlueprintReadOnly)
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> UseCenterOrb;
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(EditAnywhere, BlueprintReadOnly)
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">USphereComponent</span>* <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">ShowRange</span>;</span>
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf&lt;<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">AVTDSpellOrb</span>&gt;</span> OrbClass;
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">protected</span>:
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>(VisibleAnywhere, BlueprintReadOnly)
+	TArray&lt;<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">class</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">AVTDSpellOrb</span>*&gt;</span> Orbs;
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">private</span>:
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UPROPERTY</span>()
+	APawn* PlayerInViewArea;
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">public</span>:
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Sets default values for this actor&#x27;s properties</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">AVTDSpellCircle</span>();
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">virtual</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">Destroyed</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">override</span></span>;
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">protected</span>:
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">SpawnOrbs</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span></span>;
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">SpawnOrb</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> Index, FVector Position, FActorSpawnParameters SpawnParameters)</span></span>;
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">virtual</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">BeginPlay</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">()</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">override</span></span>;
+
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UFUNCTION</span>(BlueprintNativeEvent)
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">OnOverlapBegin</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(UPrimitiveComponent* OverlapComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> bFromSweep, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span> FHitResult&amp; SweepResult)</span></span>;
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">UFUNCTION</span>(BlueprintNativeEvent)
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">OnOverlapEnd</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(UPrimitiveComponent* OverlapComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+	                  int32 OtherBodyIndex)</span></span>;
+	<span style="color:rgb(248, 248, 242); font-weight:400;background:rgba(0, 0, 0, 0);"><span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">virtual</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> <span style="color:rgb(0, 224, 224); font-weight:400;background:rgba(0, 0, 0, 0);">SetActorHiddenInGame</span><span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> bNewHidden)</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">override</span></span>;
+};
+</code></pre>
