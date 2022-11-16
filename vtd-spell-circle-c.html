@@ -1,0 +1,148 @@
+<pre>
+ <code id="htmlViewer" style="color:rgb(248, 248, 242); font-weight:400;display:block;padding: .5em;"><span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">#include &quot;VTDSpellCircle.h&quot;</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">#include &quot;VTDSpellMap.h&quot;</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">#include &quot;VTDSpellOrb.h&quot;</span>
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">#include &quot;Components/SphereComponent.h&quot;</span>
+
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Sets default values</span>
+AVTDSpellCircle::AVTDSpellCircle()
+{
+ 	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don&#x27;t need it.</span>
+	PrimaryActorTick.bCanEverTick = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">true</span>;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">/* actor components */</span>
+	SpellMap = CreateDefaultSubobject&lt;UVTDSpellMap&gt;(TEXT(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;SpellMap&quot;</span>));
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">/* scene components */</span>
+	RootComponent = CreateDefaultSubobject&lt;USceneComponent&gt;(TEXT(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;DefaultSceneRoot&quot;</span>));
+
+	OrbClass = AVTDSpellOrb::StaticClass();
+
+	ShowRange = CreateDefaultSubobject&lt;USphereComponent&gt;(TEXT(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;ShowRange&quot;</span>));
+	ShowRange-&gt;SetupAttachment(RootComponent);
+	ShowRange-&gt;OnComponentBeginOverlap.AddUniqueDynamic(this, &amp;AVTDSpellCircle::OnOverlapBegin);
+	ShowRange-&gt;OnComponentEndOverlap.AddUniqueDynamic(this, &amp;AVTDSpellCircle::OnOverlapEnd);
+	ShowRange-&gt;SetSphereRadius(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">300</span>.f); <span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set default range to 3m</span>
+}
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::Destroyed()
+{
+	Super::Destroyed();
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(AVTDSpellOrb* Orb : Orbs)
+		Orb-&gt;Destroy();
+}
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::SpawnOrbs()
+{
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// keep a static count of the number of times this application instance has called this function</span>
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// this needed to avoid naming collisions in the creation of orbs</span>
+	<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">static</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> NumTimesCalledInInstance = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>;
+	NumTimesCalledInInstance++;
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set general spawn parameters for orbs</span>
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = this;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// the number of orbs created</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> Index = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// if set, add a center orb with index zero</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(UseCenterOrb)
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// construct a name for the new orb</span>
+		SpawnParameters.Name = ToCStr(FString::Printf(TEXT(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;%d_Orb_%d&quot;</span>), NumTimesCalledInInstance, Index++));
+		SpawnOrb(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>, FVector::ZeroVector, SpawnParameters);
+	}
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set the position of the first orb</span>
+	FVector Position = FVector::UpVector * CircleRadius;
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set the angle step between orbs</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span> <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span> Angle = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">360</span>.f / static_cast&lt;<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">float</span>&gt;(OrbCount);
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// spawn orbs</span>
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> i = <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">0</span>; i &lt; OrbCount; ++i)
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Construct name for new orb</span>
+		SpawnParameters.Name = ToCStr(FString::Printf(TEXT(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;%d_Orb_%d&quot;</span>), NumTimesCalledInInstance, Index++));
+
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// spawn the orb</span>
+		SpawnOrb(i+<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">1</span>, Position, SpawnParameters);
+
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// update the position for the next orb</span>
+		Position = Position.RotateAngleAxis(Angle, FVector::ForwardVector);
+	}
+}
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::SpawnOrb(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">int</span> Index, FVector Position, FActorSpawnParameters SpawnParameters)
+{
+	AVTDSpellOrb* Orb = GetWorld()-&gt;SpawnActor&lt;AVTDSpellOrb&gt;(
+			OrbClass,
+			Position,
+			FRotator::ZeroRotator,
+			SpawnParameters
+		);
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// store index</span>
+	Orb-&gt;OrbIndex = Index;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// set the target spell map</span>
+	Orb-&gt;SpellMapComponent = SpellMap;
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// attach</span>
+	Orb-&gt;AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// move to correct relative position</span>
+	Orb-&gt;SetActorRelativeLocation(Position);
+
+	<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// store reference to orb</span>
+	Orbs.Add(Orb);
+}
+
+<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// Called when the game starts or when spawned</span>
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SpawnOrbs();
+	SetActorHiddenInGame(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">true</span>);
+}
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::OnOverlapBegin_Implementation(UPrimitiveComponent* OverlapComponent,
+								AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
+								<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> bFromSweep, <span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">const</span> FHitResult&amp; SweepResult)
+{
+	APawn* Pawn = Cast&lt;APawn&gt;(OtherActor);
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(IsValid(Pawn) &amp;&amp; Pawn-&gt;IsPlayerControlled())
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// player entered area</span>
+		PlayerInViewArea = Pawn;
+		SetActorHiddenInGame(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">false</span>);
+	}
+}
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::OnOverlapEnd_Implementation(UPrimitiveComponent* OverlapComponent,
+								   AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
+{
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(IsValid(PlayerInViewArea) &amp;&amp; IsValid(OtherActor)
+		&amp;&amp; Cast&lt;APawn&gt;(OtherActor) == PlayerInViewArea)
+	{
+		<span style="color:rgb(212, 208, 171); font-weight:400;background:rgba(0, 0, 0, 0);">// player left area</span>
+		PlayerInViewArea = nullptr;
+		SetActorHiddenInGame(<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">true</span>);
+	}
+}
+
+<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">void</span> AVTDSpellCircle::SetActorHiddenInGame(<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">bool</span> bNewHidden)
+{
+	Super::SetActorHiddenInGame(bNewHidden);
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">for</span>(TObjectPtr&lt;AActor&gt; Next : Children)
+	{
+		Next-&gt;SetActorHiddenInGame(bNewHidden);
+	}
+
+	<span style="color:rgb(220, 198, 224); font-weight:400;background:rgba(0, 0, 0, 0);">if</span>(IsValid(GetParentComponent()))
+		GetParentComponent()-&gt;SetHiddenInGame(bNewHidden);
+
+	GEngine-&gt;AddOnScreenDebugMessage(-<span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">1</span>, <span style="color:rgb(245, 171, 53); font-weight:400;background:rgba(0, 0, 0, 0);">.5</span>f, FColor::Red,
+		FString::Printf(TEXT(<span style="color:rgb(171, 227, 56); font-weight:400;background:rgba(0, 0, 0, 0);">&quot;hidden: %s&quot;</span>), BoolFormat(IsHidden())));
+}
+</code></pre>
